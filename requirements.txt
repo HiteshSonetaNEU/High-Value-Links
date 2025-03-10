@@ -1,0 +1,14 @@
+fastapi==0.103.1
+uvicorn==0.23.2
+beautifulsoup4==4.12.2
+requests==2.31.0
+pymongo==4.5.0
+python-dotenv==1.0.0
+aiohttp==3.8.5
+pytest==7.4.2
+openai==0.28.1
+lxml==4.9.3
+pydantic==2.4.2
+# Selenium and related packages for fallback scraping
+selenium==4.18.1
+webdriver-manager==4.0.1

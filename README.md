@@ -32,33 +32,22 @@ The project is organized into several modular components:
 
 1. Clone the repository
 ```bash
-git clone https://github.com/your-username/high-value-link-scraper.git
-cd high-value-link-scraper
+git clone https://github.com/HiteshSonetaNEU/High-Value-Links.git
+cd high-value-links
 ```
 
-2. Create a virtual environment and activate it
-```bash
-# Windows
-python -m venv venv
-venv\Scripts\activate
-
-# macOS/Linux
-python -m venv venv
-source venv/bin/activate
-```
-
-3. Install dependencies
+2. Install dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-4. Configure environment variables
+3. Configure environment variables
 ```bash
 # Copy the example .env file and update with your credentials
-cp .env.example .env
+copy from env.txt
 ```
 
-5. Edit the `.env` file with your MongoDB URI and OpenAI API key
+4. Edit the `.env` file with your MongoDB URI and OpenAI API key
 
 ## Usage
 
@@ -81,11 +70,6 @@ Options:
 
 Start the API server:
 
-```bash
-uvicorn api:app --reload
-```
-
-Or use:
 
 ```bash
 python api.py
@@ -130,10 +114,3 @@ This project is designed with scalability in mind:
 - Background task processing for long-running scrapes
 - In-memory fallbacks for edge cases
 
-## License
-
-[MIT License](LICENSE)
-
-## Contact
-
-Your Name - your.email@example.com

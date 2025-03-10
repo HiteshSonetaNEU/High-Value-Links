@@ -40,20 +40,26 @@ class LLMClassifier:
         Returns:
             List of links with updated relevance scores
         """
-        if not self.api_key or not links:
+        if not self.api_key:
+            logger.warning("No OpenAI API key provided. Skipping LLM classification.")
             return links
+            
+        logger.info(f"Starting LLM classification for {len(links)} links...")
             
         # Prepare batches to reduce API calls (process up to 10 links at a time)
         batch_size = 10
         link_batches = [links[i:i+batch_size] for i in range(0, len(links), batch_size)]
         classified_links = []
         
-        for batch in link_batches:
+        for batch_idx, batch in enumerate(link_batches):
             try:
+                logger.info(f"Processing batch {batch_idx+1}/{len(link_batches)} with LLM")
+                
                 # Create prompt for OpenAI
                 prompt = self._create_classification_prompt(batch, keywords)
                 
                 # Call OpenAI API
+                logger.info("Calling OpenAI API...")
                 response = openai.ChatCompletion.create(
                     model="gpt-3.5-turbo",
                     messages=[
@@ -63,17 +69,27 @@ class LLMClassifier:
                     temperature=0.2,
                     max_tokens=1000
                 )
+                logger.info("Received response from OpenAI API")
                 
                 # Process response
                 result = response.choices[0].message.content.strip()
                 updated_batch = self._parse_classification_response(batch, result)
                 classified_links.extend(updated_batch)
                 
+                # Log a sample of the results
+                if updated_batch:
+                    sample = updated_batch[0]
+                    logger.info(f"Sample LLM classification: URL: {sample['url']}, " 
+                               f"Score: {sample.get('relevance_score', 'N/A')}, "
+                               f"Reason: {sample.get('llm_reason', 'N/A')}")
+                
             except Exception as e:
                 logger.error(f"Error classifying links with OpenAI: {e}")
+                logger.exception("Exception details:")
                 # If API call fails, return the original batch
                 classified_links.extend(batch)
                 
+        logger.info(f"LLM classification completed for {len(links)} links")
         return classified_links
     
     def _create_classification_prompt(self, links: List[Dict], keywords: List[str]) -> str:

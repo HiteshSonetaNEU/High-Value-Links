@@ -72,6 +72,10 @@ def scrape_in_background(task_id: str, url: str, keywords: Optional[List[str]] =
                          max_depth: int = 2, use_llm: bool = True, 
                          min_score_threshold: float = 0.5):
     try:
+        logger.info(f"Starting background scraping task {task_id} for URL: {url}")
+        logger.info(f"Task parameters - max_depth: {max_depth}, use_llm: {use_llm}, keywords: {keywords}")
+        
+        # Initialize the scraper manager with explicit parameters
         manager = ScraperManager(
             use_llm=use_llm,
             keywords=keywords,
@@ -79,26 +83,43 @@ def scrape_in_background(task_id: str, url: str, keywords: Optional[List[str]] =
             min_score_threshold=min_score_threshold
         )
         
-        active_tasks[task_id] = {"status": "running", "url": url, "start_time": datetime.now()}
+        # Update task status and begin processing
+        active_tasks[task_id] = {
+            "status": "running", 
+            "url": url, 
+            "start_time": datetime.now(),
+            "use_llm": use_llm
+        }
+        
+        # Process the URL recursively
         link_count = manager.process_url_recursively(url)
+        
+        # Update task with completion details
         active_tasks[task_id] = {
             "status": "completed", 
             "url": url,
             "link_count": link_count,
             "start_time": active_tasks[task_id]["start_time"],
-            "end_time": datetime.now()
+            "end_time": datetime.now(),
+            "use_llm": use_llm
         }
         
+        logger.info(f"Completed background scraping task {task_id}. Found {link_count} high-value links.")
+        
     except Exception as e:
+        logger.error(f"Error in background scraping task {task_id}: {str(e)}")
+        logger.exception("Exception details:")
+        
         active_tasks[task_id] = {
             "status": "failed",
             "url": url,
             "error": str(e),
             "start_time": active_tasks[task_id]["start_time"],
-            "end_time": datetime.now()
+            "end_time": datetime.now(),
+            "use_llm": use_llm
         }
     finally:
-        if manager:
+        if 'manager' in locals() and manager:
             manager.close()
 
 # API Routes

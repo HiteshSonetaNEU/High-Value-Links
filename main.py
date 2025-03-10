@@ -55,12 +55,16 @@ class ScraperManager:
         self.max_links_per_page = max_links_per_page
         
         # Initialize components
-        self.scraper = LinkScraper(keywords=self.keywords, max_depth=self.max_depth)
+        self.scraper = LinkScraper(
+            keywords=self.keywords, 
+            max_depth=self.max_depth
+        )
         self.classifier = LLMClassifier() if use_llm else None
         self.db = LinkDatabase()
         
         logger.info(f"Initialized ScraperManager with keywords: {self.keywords}")
         logger.info(f"Using LLM classifier: {self.use_llm}")
+        logger.info(f"Using enhanced multi-method scraping for blocked sites")
     
     def process_url(self, url: str, depth: int = 0) -> List[Dict]:
         """
@@ -81,7 +85,7 @@ class ScraperManager:
             
             # Limit the number of links to process
             if len(links) > self.max_links_per_page:
-                logger.info(f"Limiting from {len(links)} to {self.max_links_per_page} links")
+                logger.info(f"Limiting from {len(links)} to {self.max_links_per_page}")
                 links = links[:self.max_links_per_page]
             
             # Step 2: Use LLM to improve relevance scoring if enabled
