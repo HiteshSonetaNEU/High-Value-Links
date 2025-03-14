@@ -46,8 +46,8 @@ class LLMClassifier:
             
         logger.info(f"Starting LLM classification for {len(links)} links...")
             
-        # Prepare batches to reduce API calls (process up to 10 links at a time)
-        batch_size = 10
+        # Increased batch size to reduce API calls (process up to 30 links at a time)
+        batch_size = 30
         link_batches = [links[i:i+batch_size] for i in range(0, len(links), batch_size)]
         classified_links = []
         
@@ -67,7 +67,7 @@ class LLMClassifier:
                         {"role": "user", "content": prompt}
                     ],
                     temperature=0.2,
-                    max_tokens=1000
+                    max_tokens=2000  # Increased max tokens to accommodate larger batch size
                 )
                 logger.info("Received response from OpenAI API")
                 
@@ -126,7 +126,7 @@ Links to evaluate:
     
     def _parse_classification_response(self, original_links: List[Dict], response: str) -> List[Dict]:
         """
-        Parse the OpenAI response and update link relevance scores.
+        Parse the OpenAI response and assign relevance scores.
         
         Args:
             original_links: Original list of link dictionaries
@@ -160,13 +160,8 @@ Links to evaluate:
                     
                     # Update the corresponding link if valid index and score
                     if 0 <= link_num < len(updated_links) and 0.0 <= score <= 1.0:
-                        # If there's already a rule-based relevance score, average it with the LLM score
-                        if 'relevance_score' in updated_links[link_num]:
-                            rule_score = updated_links[link_num]['relevance_score']
-                            # Weight LLM score higher (0.7) than rule-based score (0.3)
-                            updated_links[link_num]['relevance_score'] = (score * 0.7) + (rule_score * 0.3)
-                        else:
-                            updated_links[link_num]['relevance_score'] = score
+                        # Assign LLM score directly (no combination with rule-based score)
+                        updated_links[link_num]['relevance_score'] = score
                         
                         # Add LLM reason if available
                         if ' - ' in score_part:
